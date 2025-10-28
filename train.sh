@@ -1,8 +1,8 @@
-DEVICES=0,1,2,3
+DEVICES=4,5,6,7
 
 CUDA_VISIBLE_DEVICES=${DEVICES} accelerate launch --multi_gpu train.py \
 --base_model Qwen/Qwen3-8B-Base \
---data_path ./data/lima_original.jsonl \
+--data_path ./data/gsm8k_original.jsonl \
 --data_path_type json \
 --per_device_train_batch_size 4 \
 --per_device_eval_batch_size 4 \
@@ -10,17 +10,18 @@ CUDA_VISIBLE_DEVICES=${DEVICES} accelerate launch --multi_gpu train.py \
 --gradient_checkpointing True \
 --group_by_length False \
 --logging_steps 1 \
---eval_strategy epoch \
---test_size 0.1 \
+--eval_strategy steps \
+--eval_steps 10 \
+--test_size 0.01 \
 --metric_for_best_model eval_loss \
---save_strategy no \
+--save_strategy epoch \
 --load_best_model_at_end False \
 --save_total_limit 1 \
 --num_train_epochs 1 \
 --weight_decay 0.1 \
 --warmup_ratio 0.1 \
 --lr_scheduler_type  cosine \
---learning_rate 5e-6 \
+--learning_rate 5e-5 \
 --bf16 True \
 --tf32 True \
 --reasoning_args enable_thinking \
@@ -31,3 +32,4 @@ CUDA_VISIBLE_DEVICES=${DEVICES} accelerate launch --multi_gpu train.py \
 --deepspeed True \
 --deepspeed_config_path ./ds_config.json \
 --seed 42 \
+--setproctitle mhkim_train \

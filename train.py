@@ -4,6 +4,7 @@ import argparse
 import yaml
 from datetime import datetime
 from sklearn.model_selection import train_test_split
+from setproctitle import setproctitle
 from transformers import (
     AutoTokenizer,
     AutoModelForCausalLM,
@@ -66,8 +67,10 @@ args.add_argument("--output_base_dir", type=str, default="./output")
 args.add_argument("--deepspeed", type=str2bool, default=True)
 args.add_argument("--deepspeed_config_path", type=str, default="./ds_config.json")
 args.add_argument("--seed", type=int, default=42)
+args.add_argument("--setproctitle", type=str, default="mhkim")
 args = args.parse_args()
 
+setproctitle(args.setproctitle)
 os.environ["WANDB_PROJECT"] = args.project_name_for_wandb
 base_model = AutoModelForCausalLM.from_pretrained(
     args.base_model, 
