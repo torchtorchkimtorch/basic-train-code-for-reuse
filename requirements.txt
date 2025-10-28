@@ -1,0 +1,8 @@
+transformers
+wandb
+datasets
+argparse
+scikit-learn
+torch
+accelerate
+deepspeed
