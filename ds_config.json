@@ -43,7 +43,7 @@
         "reduce_bucket_size": 1e7,
         "sub_group_size": 1e9
     },
-    "tensor_parallel":{
+    "tensor_parallel": {
         "autotp_size": 1
     },
     "gradient_accumulation_steps": "auto",
@@ -51,5 +51,13 @@
     "steps_per_print": 1,
     "train_batch_size": "auto",
     "train_micro_batch_size_per_gpu": "auto",
-    "wall_clock_breakdown": false
+    "wall_clock_breakdown": false,
+    "checkpoint": {
+        "tag_validation": "IGNORE",
+        "load_universal_checkpoint": false,
+        "async_load": false,
+        "save_optimizer_states": false,
+        "save_fp16_optimizer_states": false,
+        "save_rng_state": false
+    }
 }
