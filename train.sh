@@ -2,7 +2,7 @@ DEVICES=4,5,6,7
 
 CUDA_VISIBLE_DEVICES=${DEVICES} accelerate launch --multi_gpu train.py \
 --base_model Qwen/Qwen3-8B-Base \
---data_path ./data/gsm8k_original.jsonl \
+--data_path ./data/lima_original.jsonl \
 --data_path_type json \
 --per_device_train_batch_size 4 \
 --per_device_eval_batch_size 4 \
@@ -27,7 +27,7 @@ CUDA_VISIBLE_DEVICES=${DEVICES} accelerate launch --multi_gpu train.py \
 --reasoning_args enable_thinking \
 --reasoning False \
 --project_name_for_wandb test_1 \
---run_name test_1 \
+--run_name 5e-5 \
 --output_base_dir ./output \
 --deepspeed True \
 --deepspeed_config_path ./ds_config.json \
