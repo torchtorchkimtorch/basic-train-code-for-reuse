@@ -31,12 +31,13 @@ args = argparse.ArgumentParser()
 args.add_argument("--base_model", type=str, required=True)
 args.add_argument("--data_path", type=str, required=True)
 args.add_argument("--data_path_type", type=str, choices=["json", "hf"], required=True)
+args.add_argument("--it_model_path", type=str, required=True)
 #To BE Done
 # args.add_argument("--max_length", type=int, required=True)
 
 # hyperparameters
 args.add_argument("--per_device_train_batch_size", type=int, required=True)
-args.add_argument("--per_device_eval_batch_size", type=int, required=True)
+args.add_argument("--per_device_eval_batch_size", type=int)
 args.add_argument("--gradient_accumulation_steps", type=int, required=True)
 args.add_argument("--gradient_checkpointing", type=str2bool, default=True)
 args.add_argument("--group_by_length", type=str2bool, default=False)
@@ -79,6 +80,10 @@ base_model = AutoModelForCausalLM.from_pretrained(
     # device_map="auto"
 )
 base_tokenizer = AutoTokenizer.from_pretrained(args.base_model, trust_remote_code=True)
+it_tokenzier = AutoTokenizer.from_pretrained(args.it_model_path, trust_remote_code=True)
+if base_tokenizer.eos_token_id != it_tokenzier.eos_token_id:
+    base_tokenizer.eos_token_id = it_tokenzier.eos_token_id
+    base_model.generation_config.eos_token_id = [base_model.generation_config.eos_token_id, it_tokenzier.eos_token_id]
 preprocessor = SFTDataset(base_tokenizer, 
                           args.reasoning_args, 
                           args.reasoning, 
@@ -108,16 +113,16 @@ elif args.eval_strategy != "no" and args.eval_data_path is None:
     train_dataset = train_test_data["train"]
     eval_dataset = train_test_data["test"]
 else:
-    train_dataset = preprocessed_data
+    train_dataset = preprocessed_data["train"]
     eval_dataset = None
 
 
-args = TrainingArguments(
+training_args = TrainingArguments(
     run_name=args.run_name,
     report_to="wandb",
-    output_dir=os.path.join(args.output_base_dir, f"{seperator}"),
+    output_dir=os.path.join(args.output_base_dir, args.run_name),
     per_device_train_batch_size=args.per_device_train_batch_size,
-    per_device_eval_batch_size=args.per_device_eval_batch_size,
+    # per_device_eval_batch_size=args.per_device_eval_batch_size,
     gradient_accumulation_steps=args.gradient_accumulation_steps,
     gradient_checkpointing=args.gradient_checkpointing,
     group_by_length=args.group_by_length,
@@ -143,10 +148,13 @@ args = TrainingArguments(
 trainer = Trainer(
     model=base_model,
     tokenizer=base_tokenizer,
-    args=args,
+    args=training_args,
     data_collator=data_collator,
     train_dataset=train_dataset,
     eval_dataset=eval_dataset,
 )
 
 trainer.train()
+
+if args.save_strategy == "no":
+    trainer.save_model(training_args.output_dir)

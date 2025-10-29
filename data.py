@@ -74,6 +74,7 @@ class SFTDataset:
                 "attention_mask": [1] * len(tokenized_whole_chat)
             }
             return data
+        
         self.dataset = self.dataset.map(
             add_labels, 
             num_proc=4,

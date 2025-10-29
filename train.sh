@@ -1,33 +1,30 @@
-DEVICES=4,5,6,7
+DEVICES=0,1,2,3
 
 CUDA_VISIBLE_DEVICES=${DEVICES} accelerate launch --multi_gpu train.py \
 --base_model Qwen/Qwen3-8B-Base \
 --data_path ./data/lima_original.jsonl \
 --data_path_type json \
---per_device_train_batch_size 4 \
---per_device_eval_batch_size 4 \
+--it_model_path Qwen/Qwen3-8B \
+--per_device_train_batch_size 8 \
 --gradient_accumulation_steps 1 \
 --gradient_checkpointing True \
 --group_by_length False \
 --logging_steps 1 \
---eval_strategy steps \
---eval_steps 10 \
---test_size 0.01 \
---metric_for_best_model eval_loss \
---save_strategy epoch \
+--eval_strategy no \
+--save_strategy no \
 --load_best_model_at_end False \
 --save_total_limit 1 \
---num_train_epochs 1 \
+--num_train_epochs 5 \
 --weight_decay 0.1 \
 --warmup_ratio 0.1 \
 --lr_scheduler_type  cosine \
---learning_rate 5e-5 \
+--learning_rate 2e-5 \
 --bf16 True \
 --tf32 True \
 --reasoning_args enable_thinking \
 --reasoning False \
 --project_name_for_wandb test_1 \
---run_name 5e-5 \
+--run_name 2e-5 \
 --output_base_dir ./output \
 --deepspeed True \
 --deepspeed_config_path ./ds_config.json \
